@@ -19,13 +19,24 @@ from nltk.corpus import treebank as treebank
 def readTblFromCorpus(corpus):
     tbl = dict()
     tagset = dict()
+    reverse_tagset = []
     for word, tag in corpus.tagged_words():
         if word.lower() not in tbl:
-            tbl[word.lower()] = len(tbl)
+            tbl[word.lower()] = len(tbl)+1
         if tag not in tagset:
             tagset[tag] = len(tagset)
-    return tbl, tagset 
+            reverse_tagset.append(tag)
+    return tbl, tagset, reverse_tagset
 
+def read_tag_definitions(PATH = 'tag_definitions.txt'):
+    t_d = dict()
+    
+    with open(PATH) as reader:
+        lines=reader.readlines()
+    for i in range(len(lines) // 3):
+        t_d[lines[i][:-1]] = (lines[i+1][:-1], lines[i+2][:-1])
+    return t_d
+            
 
 def glove_reader(tbl, path):
     
@@ -100,7 +111,8 @@ class tag_dataset(Dataset):
 
 def preprocess():
     nltk.download('treebank')
-    tbl, tagset = readTblFromCorpus(treebank)
+    tbl, tagset, reverse_tagset = readTblFromCorpus(treebank)
+    tag_definitions = read_tag_definitions()
     glove_pretrained = glove_reader(tbl, "glove.6B.300d.txt")
 
     data, maxlength = divide_data(treebank.tagged_sents)
@@ -125,4 +137,4 @@ def preprocess():
 
 
 
-    return glove_pretrained, dataloaders, dataset_sizes, tbl, tagset
+    return glove_pretrained, dataloaders, dataset_sizes, tbl, tagset, reverse_tagset, tag_definitions

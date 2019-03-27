@@ -75,15 +75,15 @@ def train_model(device, model, dataloaders, dataset_sizes, criterion, optimizer,
                 
                 
 
-                running_count += labels.size()[0] - padCount
-                running_loss += loss.item() * (labels.size()[0] - padCount)
+                running_count += int(labels.size()[0] - padCount)
+                running_loss += loss.item() * int(labels.size()[0] - padCount)
                 running_corrects += torch.sum(preds == labels.data) - padCount
                 
+            
+            epoch_loss = running_loss / running_count
+            epoch_acc = running_corrects.double() / running_count
 
-            epoch_loss = running_loss.double() / running_count.double()
-            epoch_acc = running_corrects.double() / running_count.double()
-
-            print('{} Loss: {} Acc: {:.4f}'.format(
+            print('{} Loss: {:.4f} Acc: {:.4f}'.format(
                 phase, epoch_loss, epoch_acc))
 
             # deep copy the model
@@ -113,14 +113,16 @@ def test(device, model, testloader):
             data = data.to(device)
             labels = labels.to(device)
             outputs = model(data)
-
-            outputs=outputs.view(outputs.size()[0]*outputs.size()[1],-1)
-            labels = labels.view(outputs.size()[0],-1)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-    print('Accuracy of the network on the test data: %d %%' % (
-        100 * correct / total))
+            max_seq_length = outputs.size()[1]
+            labels = labels[:,:max_seq_length].contiguous().view(-1)
+            preds = torch.argmax(outputs, dim = 2)
+            preds = preds.view(-1)
+            outputs = outputs.view(-1, outputs.size()[2])
+            padCount = torch.sum(labels.data == -1)
+            preds[labels.data == -1] = -1
+            total += labels.size()[0] - padCount
+            correct += torch.sum(preds == labels.data) - padCount
+    print('Accuracy of the network on the test data: {}'.format(correct.double()/total.double()))
 
 class BiGRU(nn.Module):
     ''' Architecture for Pool NN '''
@@ -136,7 +138,7 @@ class BiGRU(nn.Module):
         self.gru = torch.nn.GRU(gru_input_dim, gru_hidden_dim, gru_num_layers, batch_first=True, bidirectional=True)
         self.linear = nn.Linear(gru_hidden_dim * 2, num_tags)
 
-        self.softmax = nn.Softmax(dim = 2)
+        self.softmax = nn.LogSoftmax(dim = 2)
     def forward(self, x):
         length_of_seq = []
 
