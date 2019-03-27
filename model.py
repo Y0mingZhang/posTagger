@@ -114,8 +114,8 @@ def test(device, model, testloader):
             labels = labels.to(device)
             outputs = model(data)
 
-            outputs=outputs.view(output.size()[0]*outputs.size()[1],-1)
-            labels = labels.view(output.size()[0],-1)
+            outputs=outputs.view(outputs.size()[0]*outputs.size()[1],-1)
+            labels = labels.view(outputs.size()[0],-1)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
