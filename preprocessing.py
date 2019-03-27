@@ -34,8 +34,8 @@ def glove_reader(tbl, path):
         for line in gloveReader:
             parsed_line = line.split()
             glove_dict[parsed_line[0]] = parsed_line[1:]
-
-    pretrained_embedding = torch.zeros(len(tbl)+1, 100)
+            
+    pretrained_embedding = torch.zeros(len(tbl)+1, 300)
 
     for word in tbl:
         if word in glove_dict:
