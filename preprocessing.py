@@ -30,7 +30,7 @@ def readTblFromCorpus(corpus):
 def glove_reader(tbl, path):
     
     glove_dict = dict()
-    with open(path) as gloveReader:
+    with open(path, encoding='utf8') as gloveReader:
         for line in gloveReader:
             parsed_line = line.split()
             glove_dict[parsed_line[0]] = parsed_line[1:]
