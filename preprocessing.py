@@ -101,7 +101,7 @@ class tag_dataset(Dataset):
 def preprocess():
     nltk.download('treebank')
     tbl, tagset = readTblFromCorpus(treebank)
-    glove_pretrained = glove_reader(tbl, "/Users/jedimaster/Downloads/glove/glove.6B.100d.txt")
+    glove_pretrained = glove_reader(tbl, "glove.6B.300d.txt")
 
     data, maxlength = divide_data(treebank.tagged_sents)
 

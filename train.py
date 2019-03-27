@@ -16,8 +16,9 @@ def main():
     criterion = nn.CrossEntropyLoss(ignore_index = -1)
     optimizer = optim.Adam(net.parameters(), lr=0.001)
 
-    train_model(device, net, dataloaders, dataset_sizes, criterion, optimizer, num_epochs=1)
+    train_model(device, net, dataloaders, dataset_sizes, criterion, optimizer, num_epochs=0)
     test(device, net, dataloaders['testing'])
+    torch.save(net.state_dict(), 'trained_model/')
 
 
 
