@@ -11,7 +11,7 @@ def main():
 
     glove_pretrained, dataloaders, dataset_sizes, tbl, tagset, reverse_tagset, tag_definitions = preprocess()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    net = BiGRU(glove_pretrained, 10, 1, len(tagset)).to(device)
+    net = BiGRU(glove_pretrained, 150, 1, len(tagset)).to(device)
 
     criterion = nn.NLLLoss(ignore_index = -1)
     optimizer = optim.Adam(net.parameters(), lr=0.001)

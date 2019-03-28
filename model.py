@@ -58,9 +58,6 @@ def train_model(device, model, dataloaders, dataset_sizes, criterion, optimizer,
 
                     outputs = outputs.view(-1, outputs.size()[2])
 
-
-                    
-                    
                     loss = criterion(outputs, labels)
 
                     # backward + optimize only if in training phase
@@ -107,6 +104,7 @@ def train_model(device, model, dataloaders, dataset_sizes, criterion, optimizer,
 def test(device, model, testloader):
     correct = 0
     total = 0
+    model.eval()
     with torch.no_grad():
         for data in testloader:
             data, labels = data
@@ -126,9 +124,9 @@ def test(device, model, testloader):
 
 class BiGRU(nn.Module):
     ''' Architecture for Pool NN '''
-    def __init__(self, pretrained_embedding, gru_hidden_dim, gru_num_layers, num_tags):
+    def __init__(self, pretrained_embedding, gru_hidden_dim, gru_num_layers, num_tags, concat=False):
         super(BiGRU, self).__init__()
-
+        self.concat=concat
         gru_input_dim = pretrained_embedding.size()[1]
 
         self.embedding = nn.Embedding.from_pretrained(pretrained_embedding)
@@ -136,9 +134,12 @@ class BiGRU(nn.Module):
         self.embedding.weight.requires_grad=True
 
         self.gru = torch.nn.GRU(gru_input_dim, gru_hidden_dim, gru_num_layers, batch_first=True, bidirectional=True)
-        self.linear = nn.Linear(gru_hidden_dim * 2, num_tags)
-
-        self.softmax = nn.LogSoftmax(dim = 2)
+        self.dropout = nn.Dropout(p=0.2)
+        if concat:
+            self.linear = nn.Linear(gru_hidden_dim * 2 + gru_num_layers * gru_hidden_dim * 2, num_tags)
+        else:
+            self.linear = nn.Linear(gru_hidden_dim * 2, num_tags)
+        self.softmax = nn.LogSoftmax(dim=2)
     def forward(self, x):
         length_of_seq = []
 
@@ -158,22 +159,22 @@ class BiGRU(nn.Module):
 
 
         x, h_n = self.gru(x)
-
-
-
         x, _ = torch.nn.utils.rnn.pad_packed_sequence(x, batch_first=True, padding_value=-1)
 
 
         # x size should be batch * seq *  2 * features
-        
         x = x.contiguous()
-
         batch_size = x.size()[0]
-        seq_length = x.size()[1]
+        seq_length = x.size()[1]        
+        
+        if self.concat:
+            h_n=h_n.transpose(0,1).contiguous().view(batch_size,-1)
+            h_n=h_n.repeat(1, seq_length).view(batch_size,seq_length,-1)
+            x = torch.concat((x,h_n), dim=2)
+
         x = x.view(batch_size * seq_length, -1)
-
         x = self.linear(x)
-
+        x = self.dropout(x)
         x = x.view(batch_size, seq_length, -1)
         return self.softmax(x)
 
