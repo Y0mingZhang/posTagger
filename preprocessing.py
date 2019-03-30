@@ -28,13 +28,12 @@ def readTblFromCorpus(corpus):
             reverse_tagset.append(tag)
     return tbl, tagset, reverse_tagset
 
-def read_tag_definitions(PATH = 'tag_definitions.txt'):
+def read_tag_definitions(PATH = 'tag_definition.txt'):
     t_d = dict()
-    
     with open(PATH) as reader:
-        lines=reader.readlines()
-    for i in range(len(lines) // 3):
-        t_d[lines[i][:-1]] = (lines[i+1][:-1], lines[i+2][:-1])
+        for line in reader:
+            split_line = line.split(maxsplit=2)
+            t_d[split_line[1]] = split_line[2:]
     return t_d
             
 
@@ -138,3 +137,8 @@ def preprocess():
 
 
     return glove_pretrained, dataloaders, dataset_sizes, tbl, tagset, reverse_tagset, tag_definitions
+
+
+
+
+
