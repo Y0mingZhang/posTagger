@@ -3,8 +3,9 @@
 A GloVe + BiGRU part-of-speech tagger.
 
 ## Getting Started
-
+```
 git clone https://github.com/Y0mingZhang/tagGED.git
+```
 Download GloVe vector from http://nlp.stanford.edu/data/glove.6B.zip and leave glove.6B.300d.txt in your working directory.
 
 ### Prerequisites
@@ -12,12 +13,13 @@ Download GloVe vector from http://nlp.stanford.edu/data/glove.6B.zip and leave g
 Pytorch & NLTK
 
 ### Retraining the model
-
+```
 python train.py
+```
 Users can modify hyperparameters at config.py.
 
 ## Usage(of predict.py)
-
+```python
 >>> from predict import Predictor
 >>> p = Predictor()
 >>> p.predict('In corpus linguistics, part-of-speech tagging (POS tagging or PoS tagging or POST), also called grammatical tagging orword-category disambiguation, is the process of marking up a word in a text (corpus) as corresponding to a particular part of speech,based on both its definition and its context—i.e., its relationship with adjacent and related words in a phrase, sentence, or paragraph.')
@@ -35,4 +37,4 @@ GloVe NNP is VBZ an DT unsupervised NN learning NNP algorithm NNP for IN obtaini
 >>> p.tag_lookup('VBG')
 TAG: VBG
 Definition: Verb, gerund or present participle
-
+```
