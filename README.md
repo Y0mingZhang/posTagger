@@ -1,4 +1,4 @@
-# Project Title
+# tagGED!
 
 A GloVe + BiGRU part-of-speech tagger.
 
